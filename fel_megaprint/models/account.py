@@ -20,9 +20,9 @@ class AccountMove(models.Model):
     pdf_fel = fields.Binary('PDF FEL', copy=False)
     name_pdf_fel = fields.Char('Nombre archivo PDF FEL', default='fel.pdf', size=32)
 
-    def post(self):
+    def _post(self, soft=True):
         for factura in self:
-            if factura.journal_id.generar_fel and factura.type in ['out_invoice', 'out_refund', 'in_invoice']:
+            if factura.journal_id.generar_fel and factura.move_type in ['out_invoice', 'out_refund', 'in_invoice']:
                 if factura.firma_fel:
                     raise UserError("La factura ya fue validada, por lo que no puede ser validada nuevamnte")
                 
@@ -71,7 +71,7 @@ class AccountMove(models.Model):
 
                                 factura.date_fel = fecha_hora_cert.text
                                 factura.firma_fel = numero_autorizacion.text
-                                factura.name = numero_autorizacion.get("Serie")+"-"+numero_autorizacion.get("Numero")
+                                # factura.name = numero_autorizacion.get("Serie")+"-"+numero_autorizacion.get("Numero")
                                 factura.serie_fel = numero_autorizacion.get("Serie")
                                 factura.numero_fel = numero_autorizacion.get("Numero")
 
@@ -89,7 +89,7 @@ class AccountMove(models.Model):
                     else:
                         raise UserError(r.text)
 
-        return super(AccountMove,self).post()
+        return super(AccountMove,self)._post(soft=True)
         
     def button_cancel(self):
         result = super(AccountMove, self).button_cancel()
